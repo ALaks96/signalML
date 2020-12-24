@@ -1,0 +1,7 @@
+  
+*.sh linguist-detectable=true
+*.txt linguist-detectable=false
+*.rtf linguist-detectable=false
+*.md linguist-detectable=false
+*.ipynb linguist-detectable=false
+*.py linguist-detectable=true
