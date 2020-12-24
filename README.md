@@ -399,27 +399,27 @@ Indeed, under the hypothesis that the sound a fan makes when it is malfunctionin
 
 Now given the very high dimensionality of the MelSpectrograms we generated, we could face some issues when clustering them. To aleviate this problem, we used PCA to obtain the n most representative eigenvectors of each MelSpectrogram. Looking at the bias-variance trade-off, we easily see that at most two principal components should be considered.
 
-![image](img\PCAvarbias.jpg)
+![image](img/PCAvarbias.jpg)
 
 Do note that we have applied dimensionality reduction & clustering ONLY on abnormals sounds as a means to generate multiple failure labels for each type of failure as well as ONLY on the non-augmented audios. This is to avoid having different cluster for the same audio simply due to the morphing we apply to it. Once the label is generated for a given .wav, we can simply expand to its augmented versions.
 
 If we plot the data according to their two most representative principal components we obtain the following swarm plot:
 
-![image](img\PCAswarm.jpg)
+![image](img/PCAswarm.jpg)
 
 It's hard to detect the different clusters here, however we know from Hitachi's paper that there are roughly 3 types of failures they have recorded for. We thus assume the clustering algorithm to detect 3 clusters. Looking at the elbow method, it seems we coudl maybe even define 4 clusters.
 
-![image](img\nbclusters.jpg)
+![image](img/nbclusters.jpg)
 
 However this method on its own is not accurate and actual knowledge of the number of clusters to expect surpass it.
 
 There are many choices among clustering methods, we have used KMeans here for the sake of simplicity. The resulting algorithm gives us the following groups:
 
-![image](img\clusters.jpg)
+![image](img/clusters.jpg)
 
 If we plot for each cluster the distance to centroid for each point we obtain the following distribution plot:
 
-![image](img\disttocentroid.jpg)
+![image](img/disttocentroid.jpg)
 
 The distribution is skewed to the left for each cluster, which is exactly what we want. It basically means that overall the distance to the centroid of a cluster for each point within the cluster is generally low and homogenous. As a "verification procedure", we even downloaded .wav files from each cluster to listen and see if there are any noteable differences. And we can clearly hear a difference of pitch of some sorts across abnormal sounds. If you want to check them out for yousrelf, here is an example .wav for each class:
 
@@ -1075,7 +1075,7 @@ CMD ["python3" ,"server.py"]
 ```
 In the end, our local directory for building our image should resemble this:
 
-![image](img\dir.jpg)
+![image](img/dir.jpg)
 
 To exectue build we simply do: `docker build -t <name>:<version> .`
 
