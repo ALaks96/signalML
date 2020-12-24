@@ -425,19 +425,19 @@ The distribution is skewed to the left for each cluster, which is exactly what w
 
 *   data66db/fan/id_04/normal/00000126.wav:
 
-<audio controls=""><source src="sample\normal.wav" type="audio/wav"></audio>
+<audio controls=""><source src="sample/normal.wav" type="audio/wav"></audio>
 
 *   data6db/fan/id_02/abnormal/00000055.wav:
 
-<audio controls=""><source src="sample\pb1.wav" type="audio/wav"></audio>
+<audio controls=""><source src="sample/pb1.wav" type="audio/wav"></audio>
 
 *   data6db/fan/id_04/abnormal/00000296.wav:
 
-<audio controls=""><source src="sample\pb2.wav" type="audio/wav"></audio>
+<audio controls=""><source src="sample/pb2.wav" type="audio/wav"></audio>
 
 *   data0db/fan/id_04/abnormal/00000021.wav:
 
-<audio controls=""><source src="sample\pb2.wav" type="audio/wav"></audio>
+<audio controls=""><source src="sample/pb2.wav" type="audio/wav"></audio>
 
 We then create a label and set it to 0 in the normal sound MelSpectrograms. After that we simply merge them with the MelSpectrograms and multiclass labels of the abnormal sounds to obtain a full mutli class labeled dataset of our audios. All the above is implemented with the below class:
 
