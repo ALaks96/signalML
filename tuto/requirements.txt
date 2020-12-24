@@ -1,5 +1,4 @@
 audioread==2.1.9
-Flask==1.0.3
 h5py==3.1.0
 joblib==0.14.1
 Keras==2.3.1
