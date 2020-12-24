@@ -1,8 +1,6 @@
-<script>mermaid.initialize({ startOnLoad: true, theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast') ? 'dark' : 'default' });</script>
+# Machine Learning
 
-# Signal Machine Learning
-
-This document will walk you through the concepts, ideas and scripts of this project. To reproduce the results you may navigate to the /tuto folder which contains all the necessary code as python script or notebook depending on your preference. The /deploy folder allows you to generate a docker image for real time inference, provided it has a trained model in hdf5 format in the /deploy/scripts/models folder.
+This document will walk you through the concepts, ideas and scripts of this project in order to reproduce our results. In this folder you will find all the info/scripts necessary to go from Hitachi's .wav files to a train convolution neural net saved as hdf5.
 
 ## Intro & problem statement
 
