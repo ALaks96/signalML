@@ -399,7 +399,7 @@ Indeed, under the hypothesis that the sound a fan makes when it is malfunctionin
 
 Now given the very high dimensionality of the MelSpectrograms we generated, we could face some issues when clustering them. To aleviate this problem, we used PCA to obtain the n most representative eigenvectors of each MelSpectrogram. Looking at the bias-variance trade-off, we easily see that at most two principal components should be considered.
 
-![image](img/PCAvarbias.jpg)
+![image](img/PCAvarbias.JPG)
 
 Do note that we have applied dimensionality reduction & clustering ONLY on abnormals sounds as a means to generate multiple failure labels for each type of failure as well as ONLY on the non-augmented audios. This is to avoid having different cluster for the same audio simply due to the morphing we apply to it. Once the label is generated for a given .wav, we can simply expand to its augmented versions.
 
@@ -1075,7 +1075,7 @@ CMD ["python3" ,"server.py"]
 ```
 In the end, our local directory for building our image should resemble this:
 
-![image](img/dir.jpg)
+![image](img/dir.JPG)
 
 To exectue build we simply do: `docker build -t <name>:<version> .`
 
