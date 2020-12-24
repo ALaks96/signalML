@@ -4,7 +4,7 @@
 
 This document will walk you through the concepts, ideas and scripts of this project. To reproduce the results you may navigate to the /tuto folder which contains all the necessary code as python script or notebook depending on your preference. The /deploy folder allows you to generate a docker image for real time inference, provided it has a trained model in hdf5 format in the /deploy/scripts/models folder.
 
-## 1\. Intro & problem statement
+## Intro & problem statement
 
 The goal of this project is to be able to apply Machine Learning on sound recordings from a machine to obtain a model for real time inference on the Edge. Given this context, we have focused on developing a Machine Learning model for sound classification based on the MIMII dataset created by Hitachi.
 
@@ -18,7 +18,7 @@ https://zenodo.org/record/3384388
 
 Although one could see the direct use of classifying normal & abnormal sounds of a machine, we took it one step further. We've developed a model that could not only identify abnormal sounds but infer what problem specifically is occuring, as we agreed it would be of bigger added value than classic binary classification.
 
-## 2\. Azure ML Studio & Data set-up
+## Azure ML Studio & Data set-up
 
 The .wav files organized in their respective folders can be downloaded from the link above as .zip archives. The way we handled it, to avoid downloading locally then uploading to the cload, was to download them directly on our compute instance on Azure ML (you also get datacenter bandwidth for faster download). To do this, we simply open a terminal after launching our compute instance on AMLS. From there we either wget or curl the download links from the folders we previously created for each type of white noise added.
 
@@ -45,7 +45,7 @@ jar xvf fan.zip
 ```
 You should now have 3 folders (data0db, data6db, data66db for each type of white noise) containing subfolders of all the independent machines themselves containing folders of normal and abnormal sounds.
 
-## 3\. Pre-processing & feature extraction
+## Pre-processing & feature extraction
 
 A common approach to analysis & machine learning applied to audio is to use MelSpectrograms. In short, they are a numerical representation of a signal in both its time & frequency domain. I won't be detailing on the mathematical concepts behind it, but I do reccomend hevily to understand what they are before going on with the project. A good vulgarization can be found here: https://medium.com/analytics-vidhya/understanding-the-mel-spectrogram-fca2afa2ce53 In the article you will also find a link to a video from 3Blue1Brown on the Fourier Transform, an essential mathematical tool in the computation of a MelSpectrogram (highly recommended).
 
