@@ -21,8 +21,8 @@ _deploy/scripts/preprocessing.py_
 import librosa
 import numpy as np
 
-def extractFeatures(file_name):
 
+def extractFeatures(file_name):
     try:
         audio, sample_rate = librosa.load(file_name, res_type='kaiser_fast') 
         mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
@@ -33,7 +33,6 @@ def extractFeatures(file_name):
         # for var in ['audio','sample_rate','pad_width','file_name']:
         #     del globals()[var]
         # del globals()['var']
-
     except Exception as e:
         print(e,"\n","Error encountered while parsing file: ", file_name)
         return None 
@@ -45,8 +44,8 @@ Once the MelSpectrogram is generated for a given .wav by calling the function we
 _deploy/scripts/prediction.py_
 ```python
 import numpy as np
-
 from preprocessing import extractFeatures
+
 
 def predict(wav, model):
     mfccs = extractFeatures(wav)
@@ -94,12 +93,12 @@ _deploy/scripts/server.py_
 ```python
 import os
 from flask import Flask, jsonify, request, Response
-
 import json
 from prediction import predict
 import numpy as np
 from keras.models import load_model
 import gc
+
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -111,6 +110,7 @@ class MyEncoder(json.JSONEncoder):
             return obj.tolist()
         else:
             return super(MyEncoder, self).default(obj)
+
 
 def flask_app():
     app = Flask(__name__)
@@ -127,7 +127,9 @@ def flask_app():
         return Response(json.dumps(pred, cls=MyEncoder), mimetype="application/json")
         # return jsonify({"prediction:":pred})
     gc.collect()
+    
     return app
+
 
 if __name__ == '__main__':
     app = flask_app()

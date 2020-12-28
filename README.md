@@ -2,6 +2,13 @@
 
 This document will walk you through the concepts, ideas and scripts of this project. To reproduce the results you may navigate to the /tuto folder which contains all the necessary code as python script or notebook depending on your preference. The /deploy folder allows you to generate a docker image for real time inference, provided it has a trained model in hdf5 format in the /deploy/scripts/models folder.
 
+Before we head in, a big thanks to the Hitachi team that created this awesome dataset! 
+
+Purohit, Harsh, Tanabe, Ryo, Ichige, Kenji, Endo, Takashi, Nikaido, Yuki, Suefusa, Kaori, & Kawaguchi, Yohei. (2019). MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection (Version public 1.0) [Data set]. Presented at the 4th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2019 Workshop), New York, USA: Zenodo. http://doi.org/10.5281/zenodo.3384388
+
+You can find a very detailed document on how they produced the dataset and their approach to classifying its content here:
+[10.5281/zenodo.3384388](http://doi.org/10.5281/zenodo.3384388)
+
 ## 1\. Intro & problem statement
 
 The goal of this project is to be able to apply Machine Learning on sound recordings from a machine to obtain a model for real time inference on the Edge. Given this context, we have focused on developing a Machine Learning model for sound classification based on the MIMII dataset created by Hitachi.
@@ -55,7 +62,9 @@ import pandas as pd
 import os
 import glob
 
+
 class PipelineMeta():
+
 
     def __init__(self):
         """
@@ -75,6 +84,7 @@ class PipelineMeta():
     "data66db/fan/id_04",
     "data66db/fan/id_06",
 ]
+
 
     def datasetGenerator(self,
                         targetDir,
@@ -112,7 +122,9 @@ class PipelineMeta():
 
         normalSet = pd.DataFrame({"filePath":normalFiles,"label":normalLabels})
         abnormalSet = pd.DataFrame({"filePath":abnormalFiles,"label":abnormalLabels})
+
         return normalSet, abnormalSet
+
 
     def metaGenerator(self, save=False, metaFileName="Meta.csv"):
         """
@@ -134,10 +146,13 @@ class PipelineMeta():
             meta = meta.append(normalSet.append(abnormalSet))
         if save:
             meta.to_csv(metaFileName, index=0)
+
         return meta
+
 
     def __str__(self):
         return 'class to retrieve filepath and sound type metadata and save as Pandas dataframe'
+
 
 if __name__=='__main__':
     meta=PipelineMeta()
@@ -153,7 +168,9 @@ import struct
 import pandas as pd
 from metaPipeline import PipelineMeta
 
+
 class WavFileHelper(PipelineMeta):
+
 
     def __init__(self, metaFileName='Meta.csv'):
         """
@@ -171,6 +188,7 @@ class WavFileHelper(PipelineMeta):
             super().__init__()
             metaObj =  PipelineMeta()
             self.wavMeta = metaObj.metaGenerator(save=True)
+
 
     def FileProperties(self, filename):
         """
@@ -195,7 +213,9 @@ class WavFileHelper(PipelineMeta):
         sampleRate = struct.unpack("<I",sampleRateString)[0]
         bitDepthString = fmt[22:24]
         bitDepth = struct.unpack("<H",bitDepthString)[0]
+
         return (numChannels, sampleRate, bitDepth)
+
 
     def readFileProperties(self):           
         audioData = []
@@ -212,10 +232,13 @@ class WavFileHelper(PipelineMeta):
             "sample rate":sampleRate,
             "bit depth":bitDepth
         }
+
         return characteristics
+
 
     def __str__(self):
         return 'Class to extract .wav properties (sample rate, num channels, bit depth)'
+
 
 if __name__=="__main__":
     audioProp = WavFileHelper()
@@ -239,7 +262,9 @@ import pandas as pd
 import numpy as np
 import librosa
 
+
 class MelSpectrogram(PipelineMeta):
+
 
     def __init__(self, metaFileName='Meta.csv'):
         """
@@ -257,6 +282,7 @@ class MelSpectrogram(PipelineMeta):
             super().__init__()
             metaObj =  PipelineMeta()
             self.meta = metaObj.metaGenerator(save=True)
+
 
     def dataAugmentation(self, audio):
         """
@@ -285,6 +311,7 @@ class MelSpectrogram(PipelineMeta):
 
         return audioWn, audioRoll, audioStretch    
 
+
     def pad(self, mfccs, padWidth=2):
         """
         Classic padding for DL
@@ -294,7 +321,9 @@ class MelSpectrogram(PipelineMeta):
             mfccs: MelSpectrogram of given audio
             padWidth: Width of padding to be applied
         """
+
         return np.pad(mfccs, pad_width=((0, 0), (0, padWidth)), mode='constant')
+
 
     def mfccGenerator(self, filePath, augment=True):
         """
@@ -320,9 +349,12 @@ class MelSpectrogram(PipelineMeta):
             mfccsWn = librosa.feature.mfcc(y=Wn, sr=sampleRate, n_mfcc=40)
             mfccsRoll = librosa.feature.mfcc(y=Roll, sr=sampleRate, n_mfcc=40)
             mfccsStretch = librosa.feature.mfcc(y=Stretch, sr=sampleRate, n_mfcc=40)
+
             return self.pad(mfccs), self.pad(mfccsWn), self.pad(mfccsStretch), self.pad(mfccsRoll)
         else:
+
             return self.pad(mfccs)
+
 
     def save(self, dataFrame, fileName="totalAugmentedDf.npy"):
         """
@@ -336,6 +368,7 @@ class MelSpectrogram(PipelineMeta):
         """
         temp = dataFrame.copy().to_numpy()
         np.save(fileName, dataFrame, allow_pickle=True)
+
 
     def getMfccs(self, augment=True, save=True):
         """
@@ -383,8 +416,10 @@ class MelSpectrogram(PipelineMeta):
 
         return melSpecDf
 
+
     def __str__(self):
         return 'Class that will load audio data, augment it if paremeter boolean "augment" is set to True, retrieve mfccs for the audio(s), pad them, label them and add meta information (augmented, validation data) as well as save under npy (numpy binary) if parameter boolean "save" is set to True'
+
 
 if __name__== "__main__":
     melSpectrogram = MelSpectrogram()
@@ -450,7 +485,9 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
+
 class GenerateLabel(MelSpectrogram):
+
 
     def __init__(self, dfFileName='totalAugmentedDf.npy'):
         """
@@ -478,6 +515,7 @@ class GenerateLabel(MelSpectrogram):
         self.normalMelSpecDf = self.melSpecDf.loc[(~indexAbnormal),]
         self.augmentedMelSpecDf = self.melSpecDf.loc[(indexAbnormal) & ~(indexAugmented),]
 
+
     def formatData(self): 
         """
         Method to flatten MelSpectrograms for PCA
@@ -491,6 +529,7 @@ class GenerateLabel(MelSpectrogram):
         nsamples, nx, ny = featuresArray.shape
 
         return featuresArray.reshape((nsamples,nx*ny))
+
 
     def elbowMethod(self, features):
         """
@@ -518,6 +557,7 @@ class GenerateLabel(MelSpectrogram):
         plt.ylabel('inertia')
         plt.xticks(ks)
         plt.show()
+
 
     def getPCA(self, nComponents=20):
         """
@@ -555,6 +595,7 @@ class GenerateLabel(MelSpectrogram):
         plt.xlabel('PCA 1')
         plt.ylabel('PCA 2')
         plt.show()
+
 
     def clusterViz(self, reducedData, clusterObj):
         """
@@ -599,6 +640,7 @@ class GenerateLabel(MelSpectrogram):
         plt.yticks(())
         plt.show()
 
+
     def distToCentroid(self, labels, distances):
         """
         Method to compute and plot distance of each point to the centroïd of its cluster
@@ -620,6 +662,7 @@ class GenerateLabel(MelSpectrogram):
         self.clustersPCA.cluster.replace({0:1, 1:2, 2:3}, inplace=True)
         sns.displot(data=self.clustersPCA, x='distanceToCluster', hue='cluster', kde=True)
         plt.show()
+
 
     def viz3d(self):
         """
@@ -645,6 +688,7 @@ class GenerateLabel(MelSpectrogram):
             labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'}
         )
         fig.show()
+
 
     def cluster(self, checkNbClusters=True, visualize=True, checkDist=True, d3=False):
         """
@@ -689,6 +733,7 @@ class GenerateLabel(MelSpectrogram):
             self.distToCentroid(kmeans.labels_, distances)
             self.abnormalMelSpecDf['cluster'] = self.clustersPCA['cluster']
 
+
     def getTotalDf(self, save=True):
         """
         Method to obtain final dataframe with adequate multi class labels
@@ -710,10 +755,13 @@ class GenerateLabel(MelSpectrogram):
         totalDf = self.normalMelSpecDf.append(self.abnormalMelSpecDf.append(self.augmentedMelSpecDf))
         if save:
             self.save(totalDf, fileName="totalAugmentedMultiClassDf.npy")
+
         return totalDf
+
 
     def __str__(self):
         return 'Class to apply dimensionality reduction and clustering to generate multiclass label for sound dataset'
+
 
 if __name__=="__main__":
     labelGen = GenerateLabel()
@@ -749,14 +797,15 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 from datetime import datetime 
-
 if tf.test.gpu_device_name():
     print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
 else:
     print("Please install GPU version of TF")
 from FeatureExctraction.labelGeneration import GenerateLabel
 
+
 class DCNN(GenerateLabel):
+
 
     def __init__(self, fileName='totalAugmentedMultiClassDf.npy'):
         """
@@ -775,6 +824,7 @@ class DCNN(GenerateLabel):
             labelGen = GenerateLabel()
             self.featuresDf = labelGen.getTotalDf(save=True)
 
+
     def formatData(self):
         """
         Method to reshape exogenous variables & encode multi class labels
@@ -792,6 +842,7 @@ class DCNN(GenerateLabel):
         self.yy = to_categorical(le.fit_transform(y)) 
         # split the dataset 
         self.xTrain, self.xTest, self.yTrain, self.yTest = train_test_split(X, self.yy, test_size=0.08, random_state = 42)
+
 
     def architecture(self, numRows=40, numColumns=433, numChannels=1, filterSize=2, lr=0.01):
         """
@@ -853,6 +904,7 @@ class DCNN(GenerateLabel):
 
         return model
 
+
     def fit(self, numEpochs=150, numBatchSize=256):
         """
         Method to fit compiled model to train/test data
@@ -893,6 +945,7 @@ class DCNN(GenerateLabel):
         def __str__(self):
             return 'Class to train DCNN on MelSpectrograms, augmented, with mutli label'
 
+
 if __name__ == "__main__":
     model = DCNN()
     model.fit()
@@ -924,19 +977,17 @@ _deploy/scripts/preprocessing.py_
 import librosa
 import numpy as np
 
-def extractFeatures(file_name):
 
+def extractFeatures(file_name):
     try:
         audio, sample_rate = librosa.load(file_name, res_type='kaiser_fast') 
         mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         pad_width = 2
         mfccs = np.pad(mfccs, pad_width=((0, 0), (0, pad_width)), mode='constant')
-
         # Clean-up if needed
         # for var in ['audio','sample_rate','pad_width','file_name']:
         #     del globals()[var]
         # del globals()['var']
-
     except Exception as e:
         print(e,"\n","Error encountered while parsing file: ", file_name)
         return None 
@@ -948,8 +999,8 @@ Once the MelSpectrogram is generated for a given .wav by calling the function we
 _deploy/scripts/prediction.py_
 ```python
 import numpy as np
-
 from preprocessing import extractFeatures
+
 
 def predict(wav, model):
     mfccs = extractFeatures(wav)
@@ -984,7 +1035,6 @@ def predict(wav, model):
                 "Probabilities":predProbaList  
             }   
         }
-
     # for var in ['mfccs','model','wav','modelInput','results','predProbaList','problem','pred','detail']:
     #     del globals()[var]
     # del globals()['var']
@@ -997,12 +1047,12 @@ _deploy/scripts/server.py_
 ```python
 import os
 from flask import Flask, jsonify, request, Response
-
 import json
 from prediction import predict
 import numpy as np
 from keras.models import load_model
 import gc
+
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -1014,6 +1064,7 @@ class MyEncoder(json.JSONEncoder):
             return obj.tolist()
         else:
             return super(MyEncoder, self).default(obj)
+
 
 def flask_app():
     app = Flask(__name__)
@@ -1031,6 +1082,7 @@ def flask_app():
         # return jsonify({"prediction:":pred})
     gc.collect()
     return app
+
 
 if __name__ == '__main__':
     app = flask_app()
