@@ -1,9 +1,3 @@
----
-title: "signal ML"
-author: [Alexis Laks]
-date: "2020-12-14"
-code-block-font-size: \tiny
----
 ![image](img/codit.png)
 # Signal Machine Learning
 
