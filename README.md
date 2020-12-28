@@ -4,7 +4,7 @@ This document will walk you through the concepts, ideas and scripts of this proj
 
 Before we head in, a big thanks to the Hitachi team that created this awesome dataset! 
 
-Purohit, Harsh, Tanabe, Ryo, Ichige, Kenji, Endo, Takashi, Nikaido, Yuki, Suefusa, Kaori, & Kawaguchi, Yohei. (2019). MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection (Version public 1.0) [Data set]. Presented at the 4th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2019 Workshop), New York, USA: Zenodo. http://doi.org/10.5281/zenodo.3384388
+*Purohit, Harsh, Tanabe, Ryo, Ichige, Kenji, Endo, Takashi, Nikaido, Yuki, Suefusa, Kaori, & Kawaguchi, Yohei. (2019). MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection (Version public 1.0) [Data set]. Presented at the 4th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2019 Workshop), New York, USA: Zenodo. http://doi.org/10.5281/zenodo.3384388*
 
 You can find a very detailed document on how they produced the dataset and their approach to classifying its content here:
 [10.5281/zenodo.3384388](http://doi.org/10.5281/zenodo.3384388)
