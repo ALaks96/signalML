@@ -432,7 +432,7 @@ if __name__== "__main__":
     melSpectrogram.getMfccs(augment=True, save=True)
 ```
 
-From this point on, we could simply pass it to a CNN and train it to classify normal from abnormal sounds. However, given an interesting insight on the different types of problems they recorded the fan's sound for we could potentially train a model to detect those specific failures. We unfortunately do not have this multi class label, however it is possible to artificially generate it.
+From this point on, we could simply pass it to a CNN and train it to classify normal from abnormal sounds. However, given an interesting insight on the different types of problems they recorded the fan's sound for, we could potentially train a model to detect those specific failures. We unfortunately do not have this multi class label, however it is possible to artificially generate it.
 
 Indeed, under the hypothesis that the sound a fan makes when it is malfunctioning differs depending on the type of problem, the MelSpectrograms for these abnormal sounds should differ. If they indeed do differ, we could typically use clustering to seperate them according to that.
 
@@ -446,7 +446,7 @@ If we plot the data according to their two most representative principal compone
 
 ![image](img/PCAswarm.jpg)
 
-It's hard to detect the different clusters here, however we know from Hitachi's paper that there are roughly 3 types of failures they have recorded for. We thus assume the clustering algorithm to detect 3 clusters. Looking at the elbow method, it seems we coudl maybe even define 4 clusters.
+It's hard to detect the different clusters here, however we know from Hitachi's paper that there are roughly 3 types of failures they have recorded for. We thus assume the clustering algorithm to detect 3 clusters. Looking at the elbow method, it seems we could maybe even define 4 clusters.
 
 ![image](img/nbclusters.jpg)
 
@@ -462,19 +462,19 @@ If we plot for each cluster the distance to centroid for each point we obtain th
 
 The distribution is skewed to the left for each cluster, which is exactly what we want. It basically means that overall the distance to the centroid of a cluster for each point within the cluster is generally low and homogenous. As a "verification procedure", we even downloaded .wav files from each cluster to listen and see if there are any noteable differences. And we can clearly hear a difference of pitch of some sorts across abnormal sounds. If you want to check them out for yousrelf, here is an example .wav for each class:
 
-*   data66db/fan/id_04/normal/00000126.wav:
+*   data66db/fan/id_04/normal/00000126.wav
 
 <audio controls=""><source src="sample/normal.wav" type="audio/wav"></audio>
 
-*   data6db/fan/id_02/abnormal/00000055.wav:
+*   data6db/fan/id_02/abnormal/00000055.wav
 
 <audio controls=""><source src="sample/pb1.wav" type="audio/wav"></audio>
 
-*   data6db/fan/id_04/abnormal/00000296.wav:
+*   data6db/fan/id_04/abnormal/00000296.wav
 
 <audio controls=""><source src="sample/pb2.wav" type="audio/wav"></audio>
 
-*   data0db/fan/id_04/abnormal/00000021.wav:
+*   data0db/fan/id_04/abnormal/00000021.wav
 
 <audio controls=""><source src="sample/pb2.wav" type="audio/wav"></audio>
 
@@ -777,7 +777,7 @@ Visualizations and file saving can be activated by passing adequate boolean para
 
 ## 4\. Model fitting
 
-Although Convolutional Neural Networks are the go to solution for the vast majority of the ML community there seems to be a debate on what type of CNN should be used. Approaches using Sparse Encoded CNNs, RNNs, transfer learning with VGG or ImageNet can be seen throughout the net and results are mixed. In the end, testing these different approaches it seems that a classic CNN with a simple architecture seems to yield the best results.
+Although Convolutional Neural Networks are the go-to-solution for the vast majority of the ML community there seems to be a debate on what type of CNN should be used. Approaches using Sparse Encoded CNNs, RNNs, transfer learning with VGG or ImageNet can be seen throughout the net and results are mixed. In the end, after testing these different approaches it seems that a classic CNN with a simple architecture seems to yield the best results.
 
 We compile a Keras sequential CNN with 3 recurring blocks of 3 layers:
 
@@ -785,7 +785,7 @@ We compile a Keras sequential CNN with 3 recurring blocks of 3 layers:
 *   Max Pooling 2D with pool size 2
 *   dropout with rate 0.2
 
-The filter sizes for the convolutional layer in each block double at each sequential block, starting at 16\. We set an adam optimizer with a learning rate of 0.01 and set up a GPU Azure compute instance for fast training. After seperating one machine from the rest (as a val set), we split the remaining data as train/test. We then encode the labels and pass them to our CNN for compiling. The above is all implemented in the below class. You may change hyperparemeter settings of CNN. To modify the architecture simply modify the code.
+The filter sizes for the convolutional layer in each block double at each iteration, starting at 16\. We set an adam optimizer with a learning rate of 0.01 and set up a GPU Azure compute instance for fast training. After seperating one machine from the rest (as a val set), we split the remaining data as train/test. We then encode the labels and pass them to our CNN for compiling. The above is all implemented in the below class. You may change hyperparemeter settings of CNN. To modify the architecture simply modify the code.
 
 _tuto/Modelling/CNN.py_
 ```python
@@ -958,7 +958,7 @@ if __name__ == "__main__":
 ```
 After training on 150 epochs, we obtain a training accuracy of 93% and a test accuracy of 92% which are quite satisfying.
 
-All the above scripts has been formatted into a pipeline that can be executed with main.py. Alternitavely, you could execute the above scripts chunk by chunk in the `Notebook/AudioSignalML.ipynb` jupyter notebook.
+All the above scripts have been formatted into a pipeline that can be executed with main.py. Alternitavely, you could execute the above scripts chunk by chunk in the `Notebook/AudioSignalML.ipynb` jupyter notebook.
 
 The structure of our repo is the following:
 
@@ -966,7 +966,7 @@ The structure of our repo is the following:
 
 ## 5\. MLOps & deployment
 
-After obtaining a satisfying model, we save the weights and architecture in on hdf5 file that will be used for inference. The next step (MLOps) is to make this model available. To do this we create a Docker image for real time inference. The expected end result is a container, running on the Edge, infering in real time a specific type of failure for a machine (in our case a fan). There 3 steps to do this:
+After obtaining a satisfying model, we save the weights and architecture in an hdf5 file that will be used for inference. The next step is to make this model available. To do this we create a Docker image for real time inference. The expected end result is a container, running on the Edge, infering in real time the occurence of a specific type of failure for a machine (in our case a fan). There are 3 steps to do this:
 
 *   The first is to create the docker image which will encapsulate the code needed to go from an input (an audio recording) to an output (information output: is the fans functionning normally?).
 *   The second is to push the image to a container registry (in our case ACR) in order to make the Docker image available to different platforms (in our case an Edge runtime)

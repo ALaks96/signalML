@@ -16,11 +16,29 @@ https://zenodo.org/record/3384388
 
 Although one could see the direct use of classifying normal & abnormal sounds of a machine, we took it one step further. We've developed a model that could not only identify abnormal sounds but infer what problem specifically is occuring, as we agreed it would be of bigger added value than classic binary classification.
 
+## Intro & problem statement
+
+The goal of this project is to be able to apply Machine Learning on sound recordings from a machine to obtain a model for real time inference on the Edge. Given this context, we have focused on developing a Machine Learning model for sound classification based on the MIMII dataset created by Hitachi.
+
+In their expirement, they recorded the sound of various machines during normal functioning as well as during certain failures. For each type of machine they have recorded the sound of 4 seperate machines using eight microphones, adding three types of white noise independently (-6db, 0db, +6db). The sound recordings were saved in samples of 10s 0ms in .wav format. The .wav files are saved in either a "normal" or "abnormal" folder depending on wether the machine had an issue during recording. We have focused on one type of machine as this is a demo project, specifically on their sound recordings for a fan. They test for 3 types of problems for the fan: Voltage change, Imbalance and Clogging. The total dataset should amount to:
+
+3 (Types of white noise) x 4 (Number of independent machines) x 2 (normal & abnormal folders for .wav files) = 24 subfolders
+
+For more information on their expriment and the data:
+
+https://zenodo.org/record/3384388
+
+Although one could see the direct use of classifying normal & abnormal sounds of a machine, we took it one step further. We've developed a model that could not only identify abnormal sounds but infer what problem specifically is occuring, as we agreed it would be of bigger added value than classic binary classification.
+
 ## Azure ML Studio & Data set-up
 
 The .wav files organized in their respective folders can be downloaded from the link above as .zip archives. The way we handled it, to avoid downloading locally then uploading to the cload, was to download them directly on our compute instance on Azure ML (you also get datacenter bandwidth for faster download). To do this, we simply open a terminal after launching our compute instance on AMLS. From there we either wget or curl the download links from the folders we previously created for each type of white noise added.
 
-links for download : - https://zenodo.org/record/3384388/files/6_dB_fan.zip?download=1 - https://zenodo.org/record/3384388/files/-6_dB_fan.zip?download=1 - https://zenodo.org/record/3384388/files/0_dB_fan.zip?download=1
+links for download : 
+- https://zenodo.org/record/3384388/files/6_dB_fan.zip?download=1 
+- https://zenodo.org/record/3384388/files/-6_dB_fan.zip?download=1 
+- https://zenodo.org/record/3384388/files/0_dB_fan.zip?download=1
+
 
 ```bash
 # install jar because classic unzip doesn't work too well
@@ -109,7 +127,7 @@ class PipelineMeta():
         # 02 abnormal list generate
         abnormalFiles = sorted(glob.glob(
             os.path.abspath("{dir}/{abnormalDirName}/*.{ext}".format(dir=targetDir,
-                                                              abnormalDirName=abnormalDirName,
+                                                                    abnormalDirName=abnormalDirName,
                                                                     ext=ext))))
         abnormalLabels = True
 
@@ -238,15 +256,16 @@ if __name__=="__main__":
     audioProp.readFileProperties(metaFileName="meta.csv")
 ```
 
-For each filepath we have generated in the metadata, we use the mfcc class from the librosa package, which is a feature to extract a MelSpectrogram from an audio file quite easily. We should end up with a Pandas DataFrame containing:
+For each filepath we have generated in the metadata, we use the mfcc class from the librosa package, which is a feature to extract a MelSpectrogram from an audio file quite easily. As a later benefit to train/test/val accuracy when fitting our model, we also applied data augmentation. Similar to what is done with images, we modify slightly the input audio we have to generate more samples. In our case, we stretch, roll and more white noise (seperately) to each .wav file, mutliplying the size of our dataset by 4\.
+ We should end up with a Pandas DataFrame containing:
 
 *   A column 'feature', consisting of numpy arrays of arrays (with our parameters for the MFCC each sould be 40x433)
 *   A column 'classLabel', a boolean indicating a normal sound or not.
 *   A column 'filePath', containing the filepath of a given file as a string to keep track of the machine etc.
 *   A column 'valData', a boolean indicating validation data.
-*   A column 'valData', a boolean indicating wether the data is an augmented version
+*   A column 'augmented', a boolean indicating wether the data is an augmented version
 
-As a later benefit to train/test/val accuracy when fitting our model, we also applied data augmentation. Similar to what is done with images, we modify slightly the input audio we have to generate more samples. In our case, we stretch, roll and more white noise (seperately) to each .wav file, mutliplying the size of our dataset by 4\. This is automated with the following class that inherits from WavFileHelper, which itself inherits from PipelineMeta:
+This is automated with the following class that inherits from WavFileHelper, which itself inherits from PipelineMeta:
 
 _tuto/FeatureExtraction/melSpecExtraction.py_
 ```python
@@ -314,7 +333,7 @@ class MelSpectrogram(PipelineMeta):
             mfccs: MelSpectrogram of given audio
             padWidth: Width of padding to be applied
         """
-        
+
         return np.pad(mfccs, pad_width=((0, 0), (0, padWidth)), mode='constant')
 
 
@@ -419,13 +438,13 @@ if __name__== "__main__":
     melSpectrogram.getMfccs(augment=True, save=True)
 ```
 
-From this point on, we could simply pass it to a CNN and train it to classify normal from abnormal sounds. However, given an interesting insight on the different types of problems they recorded the fan's sound for we could potentially train a model to detect those specific failures. We unfortunately do not have this multi class label, however it is possible to artificially generate it.
+From this point on, we could simply pass it to a CNN and train it to classify normal from abnormal sounds. However, given an interesting insight on the different types of problems they recorded the fan's sound for, we could potentially train a model to detect those specific failures. We unfortunately do not have this multi class label, however it is possible to artificially generate it.
 
 Indeed, under the hypothesis that the sound a fan makes when it is malfunctioning differs depending on the type of problem, the MelSpectrograms for these abnormal sounds should differ. If they indeed do differ, we could typically use clustering to seperate them according to that.
 
 Now given the very high dimensionality of the MelSpectrograms we generated, we could face some issues when clustering them. To aleviate this problem, we used PCA to obtain the n most representative eigenvectors of each MelSpectrogram. Looking at the bias-variance trade-off, we easily see that at most two principal components should be considered.
 
-![image](..\img\PCAvarbias.JPG)
+![image](../img/PCAvarbias.JPG)
 
 Do note that we have applied dimensionality reduction & clustering ONLY on abnormals sounds as a means to generate multiple failure labels for each type of failure as well as ONLY on the non-augmented audios. This is to avoid having different cluster for the same audio simply due to the morphing we apply to it. Once the label is generated for a given .wav, we can simply expand to its augmented versions.
 
@@ -433,7 +452,7 @@ If we plot the data according to their two most representative principal compone
 
 ![image](../img/PCAswarm.jpg)
 
-It's hard to detect the different clusters here, however we know from Hitachi's paper that there are roughly 3 types of failures they have recorded for. We thus assume the clustering algorithm to detect 3 clusters. Looking at the elbow method, it seems we coudl maybe even define 4 clusters.
+It's hard to detect the different clusters here, however we know from Hitachi's paper that there are roughly 3 types of failures they have recorded for. We thus assume the clustering algorithm to detect 3 clusters. Looking at the elbow method, it seems we could maybe even define 4 clusters.
 
 ![image](../img/nbclusters.jpg)
 
@@ -449,19 +468,19 @@ If we plot for each cluster the distance to centroid for each point we obtain th
 
 The distribution is skewed to the left for each cluster, which is exactly what we want. It basically means that overall the distance to the centroid of a cluster for each point within the cluster is generally low and homogenous. As a "verification procedure", we even downloaded .wav files from each cluster to listen and see if there are any noteable differences. And we can clearly hear a difference of pitch of some sorts across abnormal sounds. If you want to check them out for yousrelf, here is an example .wav for each class:
 
-*   data66db/fan/id_04/normal/00000126.wav:
+*   data66db/fan/id_04/normal/00000126.wav
 
 <audio controls=""><source src="../sample/normal.wav" type="audio/wav"></audio>
 
-*   data6db/fan/id_02/abnormal/00000055.wav:
+*   data6db/fan/id_02/abnormal/00000055.wav
 
 <audio controls=""><source src="../sample/pb1.wav" type="audio/wav"></audio>
 
-*   data6db/fan/id_04/abnormal/00000296.wav:
+*   data6db/fan/id_04/abnormal/00000296.wav
 
 <audio controls=""><source src="../sample/pb2.wav" type="audio/wav"></audio>
 
-*   data0db/fan/id_04/abnormal/00000021.wav:
+*   data0db/fan/id_04/abnormal/00000021.wav
 
 <audio controls=""><source src="../sample/pb2.wav" type="audio/wav"></audio>
 
@@ -762,9 +781,9 @@ if __name__=="__main__":
 ```
 Visualizations and file saving can be activated by passing adequate boolean parameters upon calling methods.
 
-## 4\. Model fitting
+## Model fitting
 
-Although Convolutional Neural Networks are the go to solution for the vast majority of the ML community there seems to be a debate on what type of CNN should be used. Approaches using Sparse Encoded CNNs, RNNs, transfer learning with VGG or ImageNet can be seen throughout the net and results are mixed. In the end, testing these different approaches it seems that a classic CNN with a simple architecture seems to yield the best results.
+Although Convolutional Neural Networks are the go-to-solution for the vast majority of the ML community there seems to be a debate on what type of CNN should be used. Approaches using Sparse Encoded CNNs, RNNs, transfer learning with VGG or ImageNet can be seen throughout the net and results are mixed. In the end, after testing these different approaches it seems that a classic CNN with a simple architecture seems to yield the best results.
 
 We compile a Keras sequential CNN with 3 recurring blocks of 3 layers:
 
@@ -772,7 +791,7 @@ We compile a Keras sequential CNN with 3 recurring blocks of 3 layers:
 *   Max Pooling 2D with pool size 2
 *   dropout with rate 0.2
 
-The filter sizes for the convolutional layer in each block double at each sequential block, starting at 16\. We set an adam optimizer with a learning rate of 0.01 and set up a GPU Azure compute instance for fast training. After seperating one machine from the rest (as a val set), we split the remaining data as train/test. We then encode the labels and pass them to our CNN for compiling. The above is all implemented in the below class. You may change hyperparemeter settings of CNN. To modify the architecture simply modify the code.
+The filter sizes for the convolutional layer in each block double at each iteration, starting at 16\. We set an adam optimizer with a learning rate of 0.01 and set up a GPU Azure compute instance for fast training. After seperating one machine from the rest (as a val set), we split the remaining data as train/test. We then encode the labels and pass them to our CNN for compiling. The above is all implemented in the below class. You may change hyperparemeter settings of CNN. To modify the architecture simply modify the code.
 
 _tuto/Modelling/CNN.py_
 ```python
@@ -935,7 +954,6 @@ class DCNN(GenerateLabel):
                                 verbose=0)
         print("Testing Accuracy: ", score[1])
 
-
         def __str__(self):
             return 'Class to train DCNN on MelSpectrograms, augmented, with mutli label'
 
@@ -946,7 +964,7 @@ if __name__ == "__main__":
 ```
 After training on 150 epochs, we obtain a training accuracy of 93% and a test accuracy of 92% which are quite satisfying.
 
-All the above scripts has been formatted into a pipeline that can be executed with main.py. Alternitavely, you could execute the above scripts chunk by chunk in the `Notebook/AudioSignalML.ipynb` jupyter notebook.
+All the above scripts have been formatted into a pipeline that can be executed with main.py. Alternitavely, you could execute the above scripts chunk by chunk in the `Notebook/AudioSignalML.ipynb` jupyter notebook.
 
 The structure of our repo is the following:
 
