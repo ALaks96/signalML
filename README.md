@@ -256,7 +256,7 @@ For each filepath we have generated in the metadata, we use the mfcc class from 
 *   A column 'classLabel', a boolean indicating a normal sound or not.
 *   A column 'filePath', containing the filepath of a given file as a string to keep track of the machine etc.
 *   A column 'valData', a boolean indicating validation data.
-*   A column 'valData', a boolean indicating wether the data is an augmented version
+*   A column 'augmented', a boolean indicating wether the data is an augmented version
 
 As a later benefit to train/test/val accuracy when fitting our model, we also applied data augmentation. Similar to what is done with images, we modify slightly the input audio we have to generate more samples. In our case, we stretch, roll and more white noise (seperately) to each .wav file, mutliplying the size of our dataset by 4\. This is automated with the following class that inherits from WavFileHelper, which itself inherits from PipelineMeta:
 
