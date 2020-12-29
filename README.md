@@ -250,7 +250,8 @@ if __name__=="__main__":
     audioProp.readFileProperties(metaFileName="meta.csv")
 ```
 
-For each filepath we have generated in the metadata, we use the mfcc class from the librosa package, which is a feature to extract a MelSpectrogram from an audio file quite easily. We should end up with a Pandas DataFrame containing:
+For each filepath we have generated in the metadata, we use the mfcc class from the librosa package, which is a feature to extract a MelSpectrogram from an audio file quite easily. As a later benefit to train/test/val accuracy when fitting our model, we also applied data augmentation. Similar to what is done with images, we modify slightly the input audio we have to generate more samples. In our case, we stretch, roll and more white noise (seperately) to each .wav file, mutliplying the size of our dataset by 4\.
+ We should end up with a Pandas DataFrame containing:
 
 *   A column 'feature', consisting of numpy arrays of arrays (with our parameters for the MFCC each sould be 40x433)
 *   A column 'classLabel', a boolean indicating a normal sound or not.
@@ -258,7 +259,7 @@ For each filepath we have generated in the metadata, we use the mfcc class from 
 *   A column 'valData', a boolean indicating validation data.
 *   A column 'augmented', a boolean indicating wether the data is an augmented version
 
-As a later benefit to train/test/val accuracy when fitting our model, we also applied data augmentation. Similar to what is done with images, we modify slightly the input audio we have to generate more samples. In our case, we stretch, roll and more white noise (seperately) to each .wav file, mutliplying the size of our dataset by 4\. This is automated with the following class that inherits from WavFileHelper, which itself inherits from PipelineMeta:
+This is automated with the following class that inherits from WavFileHelper, which itself inherits from PipelineMeta:
 
 _tuto/FeatureExtraction/melSpecExtraction.py_
 ```python
