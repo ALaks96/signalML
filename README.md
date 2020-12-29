@@ -968,13 +968,13 @@ The structure of our repo is the following:
 
 After obtaining a satisfying model, we save the weights and architecture in an hdf5 file that will be used for inference. The next step is to make this model available. To do this we create a Docker image for real time inference. The expected end result is a container, running on the Edge, infering in real time the occurence of a specific type of failure for a machine (in our case a fan). There are 3 steps to do this:
 
-*   The first is to create the docker image which will encapsulate the code needed to go from an input (an audio recording) to an output (information output: is the fans functionning normally?).
+*   The first is to create the docker image which will encapsulate the code needed to go from an input (an audio recording) to an output (information output: is there an anomaly?).
 *   The second is to push the image to a container registry (in our case ACR) in order to make the Docker image available to different platforms (in our case an Edge runtime)
-*   The fubak step is to pull the image to the platform (in our case an Edge runtime) to deploy our model as a service and provide value to the customer.
+*   The last step is to pull the image to the platform (in our case an Edge runtime) to deploy our model as a service and provide value to the customer.
 
-I will not cover this last step, as this is suited to the DevOps/IoT department. However I will detail on how to make integrating with that department seamless and fast.
+I will not cover this last step, as this is suited to DevOps/IoT specialists. However I will detail on how to make integration with that department seamless and fast.
 
-For our docker image, we need 4 things. A Dockerfile to generate the backend to run the rest of our scripts, the model we trained (we won't go over that as we have done before), a flask server to retrieve requests and send responses and inference scripts to transform the input (in our case an audio recording) within a request into an output (information on whether the sound corresponds to normal functionning of the machine).
+For our docker image, we need 4 things. A Dockerfile to generate the backend, the model we trained (we won't go over that as we have done before), a flask server to retrieve requests and send responses and inference scripts to transform the input (in our case an audio recording) within a request into an output (information on whether the sound corresponds to normal functionning of the machine).
 
 The inference scripts take care of several things. It first loads a given audio in its python environment and extracts the MelSpectrogram associated to it to pass to the model. This is encapsulated in our _preprocessing.py_ file:
 
@@ -1047,7 +1047,7 @@ def predict(wav, model):
 
     return response
 ```
-The above scripts are what handle the Input to Output part of our service, going from a raw .wav file to precise information on it. These scripts, to be leveraged, need to be connected to an HTTP endpoint. Basically we need a way to call these scripts, in order to get from any .wav the info on whether it's a normal sound or not. To do that, we set up a flask server which will handle this for us.
+The above scripts are what handle the Input to Output part of our service, going from a raw .wav file to precise information about it. These scripts, to be leveraged, need to be connected to an HTTP endpoint. Basically we need a way to call these scripts, in order to get from any .wav the info on whether it's a normal sound or not. To do that, we set up a flask server which will handle this for us.
 
 _deploy/scripts/server.py_
 ```python
@@ -1096,9 +1096,9 @@ if __name__ == '__main__':
 ```
 Here we simply start by loading the model into our environment and define two simple routes. A first just to check if the server is running and a second '/inference' which will call the model etc. In this second route, it starts by retrieving an audio file from a given request using the part key 'file'. It then calls the predict function from our _prediction.py_ script (which will also call our extractFeatures function from our _preprocessing.py_ script) which will handle the whole Input to Output pipeline on the .wav we retrieved from the request. Once the pipeline is executed, we simply send as a JSON response the information we built in our _prediction.py_ script. There is also a custom encoder for JSON above our server, to ensure the object types of our responses. It is set to listen on 0.0.0.0 so localhost or 0.0.0.0 and by default on port 5000.
 
-With all the above code, we are able to run a flask server with our inference pipeline locally provided we have the adequate Python environment. However, the goal here is to deploy this to the Edge (or another platform) so to do this we use Docker to encapsulate it all.
+With all the above code we are able to run a flask server with our inference pipeline locally, provided we have the adequate Python environment. However, the goal here is to deploy this to the Edge (or another platform) so to do this we use Docker to encapsulate it all.
 
-Our Dockerfile uses a python-slim image (for size optimization purposes), which has Python built-in as well as a series of Linux/C/C++ libraries already installed. We add one library for image processing purposes (libsndfile1) and pip install the required packages for the execution of our model (tf, keras, etc.). We also clear out caches and other unnecessary files. We then set the entrypoint to a shell script (startFlask.sh which is just: `python3 server.py`) which simply launches our flask server with python to listen to requests and send responses. We also expose on port 5000 to ensure where Docker is "listening"/"talking".
+Our Dockerfile uses a python-slim base image (for size optimization purposes), which has Python built-in as well as a series of Linux/C/C++ libraries already installed. We add one library for image processing purposes (libsndfile1) and pip install the required packages for the execution of our model (tf, keras, etc.). We also clear out caches and other unnecessary files. We then set the entrypoint to a shell script (startFlask.sh which is just: `python3 server.py`) which simply launches our flask server with python to listen to requests and send responses. We also expose on port 5000 to ensure where Docker is listening.
 
 _deploy/Dockerfile_
 ```docker
@@ -1133,7 +1133,7 @@ In the end, our local directory for building our image should resemble this:
 
 ![image](img/dir.JPG)
 
-To exectue build we simply do: `docker build -t <name>:<version> .`
+To execute the build we simply do: `docker build -t <name>:<version> .`
 
 ## 6\. Testing locally & deploying to Azure
 
@@ -1163,4 +1163,4 @@ Then simply push with the following command:
 
 Once the push is finished (can take a while depending on your bandwidth and size of image), you should see it in the repositories menu in Services in your ACR.
 
-To check that it works, click on the 3 dots next to the version of your repository and click 'run instance'. This will create an Azure Container Instance of your image. Fill in a name and configure the port to 5000 for example. After the deployment is done, go the resource and in the overview you should have the IP of your instance. To interact with it, use the same `curl` instructions as above but replacing localhost with the IP of your instance and set the port to 5000\. This should ensure it would work on any platform.
+To check that it works, click on the ellipsis next to the version of your repository and click 'run instance'. This will create an Azure Container Instance of your image. Fill in a name and configure the port to 5000 for example. After the deployment is done, go the resource and in the overview you should have the IP of your instance. To interact with it, use the same `curl` instructions as above but replacing localhost with the IP of your instance and set the port to 5000\. This should ensure it would work on any platform.
