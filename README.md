@@ -28,7 +28,10 @@ Although one could see the direct use of classifying normal & abnormal sounds of
 
 The .wav files organized in their respective folders can be downloaded from the link above as .zip archives. The way we handled it, to avoid downloading locally then uploading to the cload, was to download them directly on our compute instance on Azure ML (you also get datacenter bandwidth for faster download). To do this, we simply open a terminal after launching our compute instance on AMLS. From there we either wget or curl the download links from the folders we previously created for each type of white noise added.
 
-links for download : - https://zenodo.org/record/3384388/files/6_dB_fan.zip?download=1 - https://zenodo.org/record/3384388/files/-6_dB_fan.zip?download=1 - https://zenodo.org/record/3384388/files/0_dB_fan.zip?download=1
+links for download : 
+- https://zenodo.org/record/3384388/files/6_dB_fan.zip?download=1 
+- https://zenodo.org/record/3384388/files/-6_dB_fan.zip?download=1 
+- https://zenodo.org/record/3384388/files/0_dB_fan.zip?download=1
 
 
 ```bash
