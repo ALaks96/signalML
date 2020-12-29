@@ -29,16 +29,18 @@ class DCNN(GenerateLabel):
         If file is save as npy binary will load, otherwise will generate
         """
         try:
-            features = np.load(fileName, allow_pickle=True).tolist()
-            # ~/cloudfiles/code/Users/Alexis.Laks/melspectrogramMutlilabelTrain.npy
+            print('Trying to load total df containing multiclass labels and augmented melspectrograms')
+            features = np.load('totalAugmentedMultiClassDf.npy', allow_pickle=True).tolist()
             # Convert into a Panda dataframe 
-            self.featuresDf = pd.DataFrame(features, columns=['feature','class_label'])
-            print('Finished feature extraction from ', len(self.featuresdf), ' files') 
+            self.totalDf = pd.DataFrame(features, columns=['feature', 'classLabel', 'filePath', 'valData', 'augmented', 'featureShape', 'cluster'])
+            print('Finished feature extraction from ', len(self.totalDf), ' files') 
         except Exception as e:
             print(e, "Augmented multi labeled melspectrograms weren't generated, will create them and save as npy binary")
             super().__init__()
             labelGen = GenerateLabel()
-            self.featuresDf = labelGen.getTotalDf(save=True)
+            self.totalDf = labelGen.getTotalDf(save=True)
+        indexVal = self.totalDf['valData'] == 0
+        self.featuresDf = self.totalDf.copy().loc[indexVal,]
             
     
     def formatData(self):
