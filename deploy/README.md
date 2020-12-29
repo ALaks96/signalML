@@ -2,6 +2,10 @@
 
 This document will walk you through the concepts/scripts necessary to deploy a trained CNN (as hdf5) as a http endpoint with Docker.
 
+- [Deployment](#deployment)
+  - [Containerization](#containerization)
+  - [Testing locally & deploying to Azure](#testing-locally--deploying-to-azure)
+
 ## Containerization
 
 After obtaining a satisfying model, we save the weights and architecture in an hdf5 file that will be used for inference. The next step is to make this model available. To do this we create a Docker image for real time inference. The expected end result is a container, running on the Edge, infering in real time the occurence of a specific type of failure for a machine (in our case a fan). There are 3 steps to do this:

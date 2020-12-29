@@ -2,6 +2,13 @@
 
 This document will walk you through the concepts, ideas and scripts of this project in order to reproduce our results. In this folder you will find all the info/scripts necessary to go from Hitachi's .wav files to a train convolution neural net saved as hdf5.
 
+- [Machine Learning](#machine-learning)
+  - [Intro & problem statement](#intro--problem-statement)
+  - [Intro & problem statement](#intro--problem-statement-1)
+  - [Azure ML Studio & Data set-up](#azure-ml-studio--data-set-up)
+  - [Pre-processing & feature extraction](#pre-processing--feature-extraction)
+  - [Model fitting](#model-fitting)
+
 ## Intro & problem statement
 
 The goal of this project is to be able to apply Machine Learning on sound recordings from a machine to obtain a model for real time inference on the Edge. Given this context, we have focused on developing a Machine Learning model for sound classification based on the MIMII dataset created by Hitachi.

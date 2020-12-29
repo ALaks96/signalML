@@ -3,6 +3,14 @@
 
 This document will walk you through the concepts, ideas and scripts of this project. To reproduce the results you may navigate to the /tuto folder which contains all the necessary code as python script or notebook depending on your preference. The /deploy folder allows you to generate a docker image for real time inference, provided it has a trained model in hdf5 format in the /deploy/scripts/models folder.
 
+- [Signal Machine Learning](#signal-machine-learning)
+  - [1\. Intro & problem statement](#1-intro--problem-statement)
+  - [2\. Azure ML Studio & Data set-up](#2-azure-ml-studio--data-set-up)
+  - [3\. Pre-processing & feature extraction](#3-pre-processing--feature-extraction)
+  - [4\. Model fitting](#4-model-fitting)
+  - [5\. MLOps & deployment](#5-mlops--deployment)
+  - [6\. Testing locally & deploying to Azure](#6-testing-locally--deploying-to-azure)
+
 Before we head in, a big thanks to the Hitachi team that created this awesome dataset! 
 
 *Purohit, Harsh, Tanabe, Ryo, Ichige, Kenji, Endo, Takashi, Nikaido, Yuki, Suefusa, Kaori, & Kawaguchi, Yohei. (2019). MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection (Version public 1.0) [Data set]. Presented at the 4th Workshop on Detection and Classification of Acoustic Scenes and Events (DCASE 2019 Workshop), New York, USA: Zenodo. http://doi.org/10.5281/zenodo.3384388*
