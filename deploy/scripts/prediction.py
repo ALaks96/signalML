@@ -13,8 +13,7 @@ def predict(wav, model):
     predProbaList = [results[:,0][0],results[:,1][0],results[:,2][0],results[:,3][0]]
     problem = np.argmax(results)
     pred = False
-    if problem == 0:
-        detail = ['Component OK']
+    detail = ['Component OK']
     # pred1 = predProbaList[1] >= 0.7
     if problem == 1:
         detail = ['Component is imbalanced']
